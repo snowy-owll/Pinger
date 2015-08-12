@@ -1,0 +1,50 @@
+﻿<Window x:Name="window" x:Class="Pinger.Views.DialogAddChangeConnection"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:viewModel="clr-namespace:Pinger.ViewModels"
+        xmlns:local="clr-namespace:Pinger.Views"
+        Width="250" SizeToContent="Height" ShowInTaskbar="False" WindowStyle="ToolWindow" ResizeMode="NoResize"        
+        WindowStartupLocation="CenterScreen" FocusManager.FocusedElement="{Binding ElementName=textBox_Name}"
+        ResxExtension.DefaultResxName="Pinger.Localization.Localization" Language="{UICulture}"
+        Title="{Binding Path=(local:Attached.TitleObject), RelativeSource={RelativeSource Self}}">
+    <Window.Resources>
+        <Resx x:Key="WindowTitle_Add" ResxName="Pinger.Localization.Localization" Key="DialogAddChangeConnection_Add"/>
+        <Resx x:Key="WindowTitle_Change" ResxName="Pinger.Localization.Localization" Key="DialogAddChangeConnection_Change"/>
+    </Window.Resources>
+    <Window.Style>
+        <Style TargetType="Window">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding State}" Value="{x:Static viewModel:DialogAddChangeConnectionState.Add}">
+                    <Setter Property="local:Attached.TitleObject" Value="{StaticResource WindowTitle_Add}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding State}" Value="{x:Static viewModel:DialogAddChangeConnectionState.Change}">
+                    <Setter Property="local:Attached.TitleObject" Value="{StaticResource WindowTitle_Change}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Style>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Content="{Resx DialogAddChangeConnection_Name}"/>
+            <Label Content="{Resx DialogAddChangeConnection_Host}" Grid.Row="1"/>
+            <TextBox x:Name="textBox_Name" Grid.Column="1" VerticalAlignment="Center" Margin="5" Text="{Binding Connection.Name, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBox Grid.Column="1" Grid.Row="1" VerticalAlignment="Center" Margin="5" Text="{Binding Connection.Host, UpdateSourceTrigger=PropertyChanged}"/>
+        </Grid>
+        <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right">
+            <Button Content="{Resx Button_Ok}" Margin="5" Padding="3" Width="70" IsEnabled="{Binding CanAccept}" Command="{Binding Accept}"/>
+            <Button Content="{Resx Button_Cancel}" Margin="5" Padding="3" Width="70" Command="{Binding Reject}"/>
+        </StackPanel>
+    </Grid>
+</Window>
