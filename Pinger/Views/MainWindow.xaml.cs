@@ -1,12 +1,7 @@
 ﻿using Pinger.ViewModels;
-using System;
-using System.ComponentModel;
-using System.Net.NetworkInformation;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
 
-namespace Pinger
+namespace Pinger.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
