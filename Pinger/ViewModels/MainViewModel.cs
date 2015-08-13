@@ -56,8 +56,7 @@ namespace Pinger.ViewModels
                     Debug.WriteLine(culture + " is not available on the machine or is an invalid culture identifier.");
                 }
             }
-            CurrentCulture = SupportedCultures.Where(c => c.CultureInfo.Equals(_settings.Language.CultureInfo)).First();
-            Debug.WriteLine("");
+            CurrentCulture = SupportedCultures.Where(c => c.CultureInfo.Equals(_settings.Language.CultureInfo)).First();            
         }
 
         private Settings _settings = new Settings();
@@ -134,9 +133,7 @@ namespace Pinger.ViewModels
         private ConnectionsViewModel _connections;
         private string _replies;
         private SoundPing _soundPing;
-        private bool _pingExecuted;
-        private bool _canChangeRemoveConnection;
-        private bool _canPingStart;
+        private bool _pingExecuted;        
         private ObservableCollection<CultureItem> _supportedCultures;
         private CultureItem _currentCulture;
 
@@ -151,16 +148,16 @@ namespace Pinger.ViewModels
                     if (_currentTab == 0)
                     {
                         if (CurrentOldConnectionText == "")
-                            CanPingStart = false;
+                            ExecutePing.CanExecute = false;
                         else
-                            CanPingStart = true;
+                            ExecutePing.CanExecute = true;
                     }
                     else
                     {
                         if (CurrentConnection == null)
-                            CanPingStart = false;
+                            ExecutePing.CanExecute = false;
                         else
-                            CanPingStart = true;
+                            ExecutePing.CanExecute = true;
                     }
                     OnPropertyChanged();
                 }
@@ -189,9 +186,9 @@ namespace Pinger.ViewModels
                 {
                     _currentConnection = value;
                     if (_currentConnection == null && CurrentTab == 1)
-                        CanPingStart = false;
+                        ExecutePing.CanExecute = false;
                     else if (_currentConnection != null && CurrentTab == 1)
-                        CanPingStart = true;
+                        ExecutePing.CanExecute = true;
                     OnPropertyChanged();
                 }
             }
@@ -206,9 +203,9 @@ namespace Pinger.ViewModels
                 {
                     _currentOldConnectionText = value;
                     if (_currentOldConnectionText == "" && CurrentTab==0)
-                        CanPingStart = false;
+                        ExecutePing.CanExecute = false;
                     else if (_currentOldConnectionText != "" && CurrentTab == 0)
-                        CanPingStart = true;
+                        ExecutePing.CanExecute = true;
                     OnPropertyChanged();
                 }
             }
@@ -302,7 +299,7 @@ namespace Pinger.ViewModels
                 {
                     _pingExecuted = value;
                     if (!_pingExecuted)
-                    {
+                    {                        
                         _pingThread.PingReplyReceived -= _pingReplyReceived;
                         _pingThread.PingStopped -= _pingStopped;
                         _pingThread.StopPing();
@@ -339,33 +336,7 @@ namespace Pinger.ViewModels
                     OnPropertyChanged();
                 }
             }
-        }
-
-        public bool CanChangeRemoveConnection
-        {
-            get { return _canChangeRemoveConnection; }
-            set
-            {
-                if (value != _canChangeRemoveConnection)
-                {
-                    _canChangeRemoveConnection = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public bool CanPingStart
-        {
-            get { return _canPingStart; }
-            set
-            {
-                if (value != _canPingStart)
-                {
-                    _canPingStart = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        }        
 
         public ObservableCollection<CultureItem> SupportedCultures
         {
@@ -398,7 +369,8 @@ namespace Pinger.ViewModels
 
         #region Commands
 
-        private Command _executeStopPing = null;
+        private Command _executePing = null;
+        private Command _stopPing = null;
         private Command _windowLoaded = null;
         private Command _windowClose = null;
         private Command _windowClosed = null;
@@ -407,16 +379,30 @@ namespace Pinger.ViewModels
         private Command _removeConnection = null;
         private Command _test = null;
 
-        public Command ExecuteStopPing
+        public Command StopPing
+        {
+            get
+            {
+                if (_stopPing == null)
+                    _stopPing = new Command(() =>
+                    {
+                        PingExecuted = false;
+                    }
+                    );
+                return _stopPing;
+            }
+        }
+
+        public Command ExecutePing
         {
             get 
             {
-                if (_executeStopPing == null)
-                    _executeStopPing = new Command(() =>
+                if (_executePing == null)
+                    _executePing = new Command(() =>
                     {
-                        PingExecuted = !PingExecuted;
+                        PingExecuted = true;
                     });
-                return _executeStopPing; 
+                return _executePing; 
             }            
         }
 
@@ -432,10 +418,14 @@ namespace Pinger.ViewModels
                         else
                             CurrentOldConnection = _oldConnections.List[0];
                         if (_connections.List.Count == 0)
-                            CanChangeRemoveConnection = false;
+                        {
+                            ChangeConnection.CanExecute = false;
+                            RemoveConnection.CanExecute = false;
+                        }
                         else
                         {
-                            CanChangeRemoveConnection = true;
+                            ChangeConnection.CanExecute = true;
+                            RemoveConnection.CanExecute = true;
                             CurrentConnection = _connections.List[0];
                         }
                     });
@@ -484,7 +474,8 @@ namespace Pinger.ViewModels
                             _connections.List.Add(_dialogAddChangeConnectionModel.Connection);
                             _connections.Sort();
                             CurrentConnection = _dialogAddChangeConnectionModel.Connection;
-                            CanChangeRemoveConnection = true;
+                            ChangeConnection.CanExecute = true;
+                            RemoveConnection.CanExecute = true;
                         }
                     });
                 return _addConnection;
@@ -527,10 +518,15 @@ namespace Pinger.ViewModels
                         if (index < Connections.List.Count)
                             CurrentConnection = Connections.List[index];
                         else
+                        {
                             if (Connections.List.Count > 0)
                                 CurrentConnection = Connections.List[Connections.List.Count - 1];
                             else
-                                CanChangeRemoveConnection = false;
+                            {
+                                ChangeConnection.CanExecute = false;
+                                RemoveConnection.CanExecute = false;
+                            }
+                        }
                     });
                 return _removeConnection;
             }

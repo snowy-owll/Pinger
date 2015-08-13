@@ -58,27 +58,9 @@
                             </Ellipse.Style>
                         </Ellipse>
                         <Grid Margin="5,0,0,0" VerticalAlignment="Center">
-                            <Button IsEnabled="{Binding CanPingStart}" Command="{Binding ExecuteStopPing}" Content="{Resx Button_StartPing}" VerticalAlignment="Center" Width="105" Height="20"/>
-                            <Button Command="{Binding ExecuteStopPing}" Content="{Resx Button_StopPing}" VerticalAlignment="Center" Width="105" Height="20" Visibility="{Binding PingExecuted, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            <Button Command="{Binding ExecutePing}" Content="{Resx Button_StartPing}" VerticalAlignment="Center" Width="105" Height="20"/>
+                            <Button Command="{Binding StopPing}" Content="{Resx Button_StopPing}" VerticalAlignment="Center" Width="105" Height="20" Visibility="{Binding PingExecuted, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                         </Grid>
-                        <!--<Button IsEnabled="{Binding CanPingStart}" Command="{Binding ExecuteStopPing}" VerticalAlignment="Center" Width="105" Margin="5,0,0,0" Height="20">
-                            <Button.Resources>
-                                <ResxExtension x:Key="Button_StopPing_ResxResource" Key="Button_StopPing" ResxName="Pinger.Localization.Localization"/>
-                                <ResxExtension x:Key="Button_StartPing_ResxResource" Key="Button_StartPing" ResxName="Pinger.Localization.Localization"/>
-                            </Button.Resources>
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding PingExecuted}" Value="True">                                            
-                                            <Setter Property="Content" Value="{StaticResource ResourceKey=Button_StopPing_ResxResource}"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding PingExecuted}" Value="False">                                            
-                                            <Setter Property="Content" Value="{StaticResource ResourceKey=Button_StartPing_ResxResource}"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>-->
                     </StackPanel>
                     <TabControl x:Name="tabControl_ping" HorizontalAlignment="Stretch" Margin="5,5,5,0" SelectedIndex="{Binding CurrentTab}" VerticalAlignment="Stretch">
                         <TabControl.Style>
