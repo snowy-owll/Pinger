@@ -77,7 +77,7 @@
                         </TabControl.Style>
                         <TabItem Header="{Resx ConnectionsTab_InputConnection}">
                             <Grid Background="#FFE5E5E5">
-                                <ComboBox x:Name="comboBox_oldConnections" ItemsSource="{Binding OldConnections.List}" SelectedIndex="{Binding CurrentOldConnectionIndex}" SelectedValuePath="Host" SelectedItem="{Binding CurrentOldConnection}" Text="{Binding CurrentOldConnectionText}" DisplayMemberPath="Host" HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Top" IsEditable="True"/>
+                                <ComboBox x:Name="comboBox_oldConnections" ItemsSource="{Binding OldConnections}" SelectedIndex="{Binding CurrentOldConnectionIndex}" SelectedValuePath="Host" SelectedItem="{Binding CurrentOldConnection}" Text="{Binding CurrentOldConnectionText}" DisplayMemberPath="Host" HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Top" IsEditable="True"/>
                             </Grid>
                         </TabItem>
                         <TabItem Header="{Resx ConnectionsTab_ConnectionsList}">
@@ -86,7 +86,7 @@
                                     <RowDefinition Height="*"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <ListView ItemsSource="{Binding Connections.List}" SelectedItem="{Binding CurrentConnection}" HorizontalAlignment="Stretch" Margin="5,5,5,0" VerticalAlignment="Stretch" SelectionMode="Single">
+                                <ListView ItemsSource="{Binding Connections}" SelectedItem="{Binding CurrentConnection}" HorizontalAlignment="Stretch" Margin="5,5,5,0" VerticalAlignment="Stretch" SelectionMode="Single">
                                     <ListView.View>
                                         <GridView>
                                             <GridViewColumn Header="{Resx ResxName=Pinger.Localization.Localization, Key=ConnectionsTable_Name}" Width="110" DisplayMemberBinding="{Binding Path=Name}"/>

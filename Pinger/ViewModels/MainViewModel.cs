@@ -314,12 +314,12 @@ namespace Pinger.ViewModels
                             if (CurrentOldConnection == null)
                             {
                                 connection = new ConnectionViewModel(CurrentOldConnectionText);
-                                _oldConnections.List.Insert(0, connection);
+                                _oldConnections.Add(connection);
                             }
                             else
                             {
                                 connection = CurrentOldConnection;
-                                _oldConnections.List.Move(CurrentOldConnectionIndex, 0);
+                                _oldConnections.MoveToTop(connection);
                             }
                             CurrentOldConnection = connection;
                         }
@@ -413,11 +413,11 @@ namespace Pinger.ViewModels
                 if (_windowLoaded == null)
                     _windowLoaded = new Command(() =>
                     {
-                        if (_oldConnections.List.Count == 0)
+                        if (_oldConnections.Count == 0)
                             CurrentOldConnectionText = "";
                         else
-                            CurrentOldConnection = _oldConnections.List[0];
-                        if (_connections.List.Count == 0)
+                            CurrentOldConnection = _oldConnections[0];
+                        if (_connections.Count == 0)
                         {
                             ChangeConnection.CanExecute = false;
                             RemoveConnection.CanExecute = false;
@@ -426,7 +426,7 @@ namespace Pinger.ViewModels
                         {
                             ChangeConnection.CanExecute = true;
                             RemoveConnection.CanExecute = true;
-                            CurrentConnection = _connections.List[0];
+                            CurrentConnection = _connections[0];
                         }
                     });
                 return _windowLoaded;
@@ -471,8 +471,7 @@ namespace Pinger.ViewModels
                         bool? result = _dialogAddChangeConnectionService.ShowDialog(_dialogAddChangeConnectionModel);
                         if (result.HasValue && result.Value)
                         {
-                            _connections.List.Add(_dialogAddChangeConnectionModel.Connection);
-                            _connections.Sort();
+                            _connections.Add(_dialogAddChangeConnectionModel.Connection);                            
                             CurrentConnection = _dialogAddChangeConnectionModel.Connection;
                             ChangeConnection.CanExecute = true;
                             RemoveConnection.CanExecute = true;
@@ -496,8 +495,7 @@ namespace Pinger.ViewModels
                         {
                             ConnectionViewModel connection = CurrentConnection;
                             connection.Name = _dialogAddChangeConnectionModel.Connection.Name;
-                            connection.Host = _dialogAddChangeConnectionModel.Connection.Host;
-                            Connections.Sort();
+                            connection.Host = _dialogAddChangeConnectionModel.Connection.Host;                            
                             CurrentConnection = connection;
 
                         }
@@ -513,14 +511,14 @@ namespace Pinger.ViewModels
                 if (_removeConnection == null)
                     _removeConnection = new Command(() =>
                     {
-                        int index = Connections.List.IndexOf(CurrentConnection);
-                        Connections.List.Remove(CurrentConnection);
-                        if (index < Connections.List.Count)
-                            CurrentConnection = Connections.List[index];
+                        int index = Connections.IndexOf(CurrentConnection);
+                        Connections.Remove(CurrentConnection);
+                        if (index < Connections.Count)
+                            CurrentConnection = Connections[index];
                         else
                         {
-                            if (Connections.List.Count > 0)
-                                CurrentConnection = Connections.List[Connections.List.Count - 1];
+                            if (Connections.Count > 0)
+                                CurrentConnection = Connections[Connections.Count - 1];
                             else
                             {
                                 ChangeConnection.CanExecute = false;

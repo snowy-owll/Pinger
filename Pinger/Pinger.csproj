@@ -64,6 +64,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Collections\ConnectionsCollection.cs" />
+    <Compile Include="Collections\OldConnectionsCollection.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="dbContext.cs" />
     <Compile Include="EnumBooleanConverter.cs" />
@@ -142,9 +144,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="db.sdf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="db.sdf" />
     <Content Include="Libraries\Infralution.Localization.Wpf.dll" />
   </ItemGroup>
   <ItemGroup />
