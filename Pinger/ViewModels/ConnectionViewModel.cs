@@ -20,14 +20,14 @@ namespace Pinger.ViewModels
 
         private Connection _connection;
 
-        public int ID
+        public int Id
         {
-            get { return _connection.ID; }
+            get { return _connection.Id; }
             set
             {
-                if (value != _connection.ID)
+                if (value != _connection.Id)
                 {
-                    _connection.ID = value;
+                    _connection.Id = value;
                     OnPropertyChanged();
                 }
             }

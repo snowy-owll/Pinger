@@ -9,6 +9,7 @@ using System.Windows.Threading;
 using System.Diagnostics;
 using Pinger.Models;
 using System.Linq;
+using Pinger.DB;
 
 namespace Pinger.ViewModels
 {
@@ -537,31 +538,8 @@ namespace Pinger.ViewModels
                 if (_test == null)
                     _test = new Command(() =>
                     {
-                        //CurrentPingState = PingState.GoodSignal;
-
-                        Debug.WriteLine(CultureInfo.InstalledUICulture);
-                        CultureManager.UICulture = new CultureInfo("en");
-                        Debug.WriteLine(CultureInfo.InstalledUICulture);                        
-
-                        /*ResourceManager rm = new ResourceManager(typeof(Localization.Localization));
-                        List<string> temp = new List<string>();
-                        CultureInfo[] cultures = CultureInfo.GetCultures(CultureTypes.AllCultures);
-                        foreach (CultureInfo culture in cultures)
-                        {
-                            try
-                            {
-                                ResourceSet rs = rm.GetResourceSet(culture, true, false);
-                                // or ResourceSet rs = rm.GetResourceSet(new CultureInfo(culture.TwoLetterISOLanguageName), true, false);
-                                if (rs == null) continue;
-                                string isSupported = (rs == null) ? " is not supported" : " is supported";
-                                temp.Add(culture + isSupported);                                
-                            }
-                            catch (CultureNotFoundException exc)
-                            {
-                                //temp.Add(culture + " is not available on the machine or is an invalid culture identifier.");
-                            }
-                        }
-                        Debug.WriteLine(temp.Count);  */                      
+                        OldConnectionsRepository temp = new OldConnectionsRepository();
+                        Debug.WriteLine(temp.GetAll().Count());
                     });
                 return _test;
             }

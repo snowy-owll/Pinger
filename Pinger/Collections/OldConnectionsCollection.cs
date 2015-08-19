@@ -8,8 +8,11 @@ namespace Pinger.Collections
     {
         public OldConnectionsCollection()
         : base()
-        {
-        }        
+        { }
+
+        public OldConnectionsCollection(List<ConnectionViewModel> list)
+            : base(list)
+        { }
 
         protected override void InsertItem(int index, ConnectionViewModel item)
         {

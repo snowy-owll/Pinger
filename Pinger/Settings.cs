@@ -3,47 +3,22 @@ using Pinger.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlServerCe;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using Pinger.DB;
+using Pinger.Interfaces;
 
 namespace Pinger
 {
     class Settings
-    {
-        dbContext _context;
-        
+    {        
         public Settings()
         {
             SqlCeConnection _connection = new SqlCeConnection("Data Source=db.sdf");
-            _context = new dbContext(_connection);
-            _context.Log = new TextWriterDebug();
-            if(!_context.DatabaseExists())
-            {
-                _context.CreateDatabase();
-                SettingsTable setting = new SettingsTable()
-                {
-                    Name = "SoundPing",
-                    Value = "SignalIsGood"
-                };
-                _context.SettingsTable.InsertOnSubmit(setting);
-                setting = new SettingsTable()
-                {
-                    Name = "MaxRepliesCount",
-                    Value = "15"
-                };
-                _context.SettingsTable.InsertOnSubmit(setting);
-                setting = new SettingsTable()
-                {
-                    Name = "Language",
-                    Value = "system"
-                };
-                _context.SettingsTable.InsertOnSubmit(setting);
-                _context.SubmitChanges();
-            }            
-            _maxRepliesCount = Int32.Parse(_context.SettingsTable.Where(r => r.Name.Equals("MaxRepliesCount")).First().Value);
-            _soundPing = (SoundPing)Enum.Parse(typeof(SoundPing), _context.SettingsTable.Where(r => r.Name == "SoundPing").First().Value);
-            string language = _context.SettingsTable.Where(r => r.Name == "Language").First().Value;
+            
+            _maxRepliesCount = Int32.Parse(_settingsRepository.GetAll().Where(r => r.Name.Equals("MaxRepliesCount")).First().Value);
+            _soundPing = (SoundPing)Enum.Parse(typeof(SoundPing), _settingsRepository.GetAll().Where(r => r.Name == "SoundPing").First().Value);
+            string language = _settingsRepository.GetAll().Where(r => r.Name == "Language").First().Value;
             if(language=="system")
             {
                 _language = new CultureItem(CultureInfo.InstalledUICulture, true);                
@@ -56,68 +31,43 @@ namespace Pinger
         }
 
         public void AddOldConnection(Connection connection)
-        {
-            OldConnectionsTable newConnection = new OldConnectionsTable() { Host = connection.Host };
-            _context.OldConnectionsTable.InsertOnSubmit(newConnection);
-            _context.SubmitChanges();
-            connection.ID = newConnection.Id;
+        {            
+            _oldConnectionsRepository.Save(connection);
         }
 
         public void RemoveOldConnection(Connection connection)
         {
-            OldConnectionsTable item = _context.OldConnectionsTable.Where(row => row.Id == connection.ID).First();
-            _context.OldConnectionsTable.DeleteOnSubmit(item);            
-            _context.SubmitChanges();
+            _oldConnectionsRepository.Delete(connection);
         }
 
         public List<Connection> GetOldConnections()
-        {
-            List<OldConnectionsTable> list = _context.OldConnectionsTable.ToList<OldConnectionsTable>();
-            List<Connection> oldConnections = new List<Connection>();
-            foreach (OldConnectionsTable item in list)
-            {
-                oldConnections.Add(new Connection(item.Id, item.Host));
-            }
-            return oldConnections;
+        {            
+            return _oldConnectionsRepository.GetAll().OrderByDescending(x => x.Id).ToList();
         }        
 
         public List<Connection> GetConnections()
-        {
-            List<ConnectionsTable> list = _context.ConnectionsTable.ToList<ConnectionsTable>();
-            List<Connection> connections = new List<Connection>();
-            foreach (ConnectionsTable item in list)
-            {
-                connections.Add(new Connection(item.Id,item.Name, item.Host));
-            }
-            return connections;
+        {            
+            return _connectionsRepository.GetAll().ToList();
         }
 
         public void AddConnection(Connection connection)
         {
-            ConnectionsTable newConnection = new ConnectionsTable()
-            {
-                Name = connection.Name,
-                Host = connection.Host
-            };
-            _context.ConnectionsTable.InsertOnSubmit(newConnection);
-            _context.SubmitChanges();
-            connection.ID = newConnection.Id;
+            _connectionsRepository.Save(connection);
         }
 
         public void RemoveConnection(Connection connection)
         {
-            ConnectionsTable item = _context.ConnectionsTable.Where(row => row.Id == connection.ID).First();
-            _context.ConnectionsTable.DeleteOnSubmit(item);
-            _context.SubmitChanges();
+            _connectionsRepository.Delete(connection);
         }
 
         public void ChangeConnection(Connection connection)
         {
-            ConnectionsTable item = _context.ConnectionsTable.Where(row => row.Id == connection.ID).First();
-            item.Name = connection.Name;
-            item.Host = connection.Host;
-            _context.SubmitChanges();
+            _connectionsRepository.Save(connection);
         }
+
+        private IRepository<Setting> _settingsRepository = new SettingsRepository();
+        private IRepository<Connection> _connectionsRepository = new ConnectionsRepository();
+        private IRepository<Connection> _oldConnectionsRepository = new OldConnectionsRepository();
 
         private SoundPing _soundPing;
         public SoundPing SoundPing { 
@@ -127,10 +77,10 @@ namespace Pinger
             }
             set 
             {
-                SettingsTable s = _context.SettingsTable.Where(r => r.Name.Equals("SoundPing")).First();
-                s.Value = value.ToString();
                 _soundPing = value;
-                _context.SubmitChanges();
+                Setting s = _settingsRepository.GetAll().Where(r => r.Name.Equals("SoundPing")).First();
+                s.Value = value.ToString();
+                _settingsRepository.Save(s);
             }
         }
 
@@ -139,10 +89,10 @@ namespace Pinger
             get { return _maxRepliesCount; }
             set 
             {
-                SettingsTable s = _context.SettingsTable.Where(r => r.Name == "MaxRepliesCount").First();
-                s.Value = value.ToString();
                 _maxRepliesCount = value;
-                _context.SubmitChanges();
+                Setting s = _settingsRepository.GetAll().Where(r => r.Name.Equals("MaxRepliesCount")).First();
+                s.Value = value.ToString();
+                _settingsRepository.Save(s);
             }
         }
 
@@ -158,12 +108,12 @@ namespace Pinger
                 if (_language != value) 
                 {
                     _language = value;
-                    SettingsTable s = _context.SettingsTable.Where(r => r.Name == "Language").First();
+                    Setting s = _settingsRepository.GetAll().Where(r => r.Name.Equals("Language")).First();                    
                     if (value.System)
                         s.Value = "system";
                     else
                         s.Value = value.CultureInfo.Name;
-                    _context.SubmitChanges();
+                    _settingsRepository.Save(s);
                     CultureManager.UICulture = value.CultureInfo;
                 }                
             }

@@ -9,16 +9,12 @@ namespace Pinger.ViewModels
     {
         const int MAX_OLD_CONNECTIONS = 15;
 
-        public OldConnectionsViewModel(Settings settings) : base()
+        public OldConnectionsViewModel(Settings settings) : base(settings.GetOldConnections().ConvertAll(x=>new ConnectionViewModel(x)))
         {
             _settings = settings;
-            List<Connection> list = _settings.GetOldConnections();
-            list.Sort(delegate (Connection p1, Connection p2)
-            {
-                return p1.ID.CompareTo(p2.ID);
-            });            
+            /*List<Connection> list = _settings.GetOldConnections();          
             foreach (Connection connection in list)
-                Add(new ConnectionViewModel(connection));
+                Add(new ConnectionViewModel(connection));*/
             CollectionChanged += (s, e) =>
                 {
                     if (e.Action == NotifyCollectionChangedAction.Add)
@@ -43,6 +39,7 @@ namespace Pinger.ViewModels
                         if (e.NewStartingIndex != 0) return;
                         ConnectionViewModel movedConnection = (ConnectionViewModel)e.NewItems[0];
                         _settings.RemoveOldConnection(movedConnection.Connection);
+                        movedConnection.Connection.Id = -1;
                         _settings.AddOldConnection(movedConnection.Connection);
                     }
                 };

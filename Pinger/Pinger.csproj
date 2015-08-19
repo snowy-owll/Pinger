@@ -67,9 +67,15 @@
     <Compile Include="Collections\ConnectionsCollection.cs" />
     <Compile Include="Collections\OldConnectionsCollection.cs" />
     <Compile Include="Command.cs" />
-    <Compile Include="dbContext.cs" />
+    <Compile Include="DB\dbContext.cs" />
+    <Compile Include="DB\ConnectionsRepository.cs" />
+    <Compile Include="DB\OldConnectionsRepository.cs" />
+    <Compile Include="DB\SettingsRepository.cs" />
+    <Compile Include="Interfaces\IDbEntity.cs" />
+    <Compile Include="DB\RepositoryBase.cs" />
     <Compile Include="EnumBooleanConverter.cs" />
     <Compile Include="Interfaces\IDialogService.cs" />
+    <Compile Include="Interfaces\IRepository.cs" />
     <Compile Include="Localization\Localization.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -77,11 +83,13 @@
     </Compile>
     <Compile Include="Models\Connection.cs" />
     <Compile Include="Models\CultureItem.cs" />
+    <Compile Include="Models\Entity.cs" />
+    <Compile Include="Models\Setting.cs" />
     <Compile Include="Services\DialogAddChangeConnectionService.cs" />
     <Compile Include="Services\DialogErrorService.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="StringLogicalComparer.cs" />
-    <Compile Include="TextWriterDebug .cs" />
+    <Compile Include="DB\TextWriterDebug .cs" />
     <Compile Include="ViewModels\ConnectionsViewModel.cs" />
     <Compile Include="ViewModels\DialogAddChangeConnectionViewModel.cs" />
     <Compile Include="ViewModels\ErrorDialogViewModel.cs" />
