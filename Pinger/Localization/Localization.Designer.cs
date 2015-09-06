@@ -61,6 +61,15 @@ namespace Pinger.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Address is invalid.
+        /// </summary>
+        public static string AddressIsInvalid {
+            get {
+                return ResourceManager.GetString("AddressIsInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add.
         /// </summary>
         public static string Button_AddConnection {
@@ -138,6 +147,15 @@ namespace Pinger.Localization {
         public static string Button_Test {
             get {
                 return ResourceManager.GetString("Button_Test", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection name is required.
+        /// </summary>
+        public static string ConnectionNameIsRequired {
+            get {
+                return ResourceManager.GetString("ConnectionNameIsRequired", resourceCulture);
             }
         }
         

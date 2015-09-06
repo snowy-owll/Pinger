@@ -207,4 +207,10 @@
   <data name="SystemLanguage" xml:space="preserve">
     <value>Системный язык</value>
   </data>
+  <data name="AddressIsInvalid" xml:space="preserve">
+    <value>Адрес введён неверно</value>
+  </data>
+  <data name="ConnectionNameIsRequired" xml:space="preserve">
+    <value>Имя соединения не может быть пустым</value>
+  </data>
 </root>

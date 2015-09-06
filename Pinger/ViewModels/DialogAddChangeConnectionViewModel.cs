@@ -3,30 +3,24 @@ using System.ComponentModel;
 
 namespace Pinger.ViewModels
 {
-    class DialogAddChangeConnectionViewModel : ObservableObject
+    class DialogAddChangeConnectionViewModel : ObservableObject, IDataErrorInfo
     {
         public DialogAddChangeConnectionViewModel()
         {
-            _state = DialogAddChangeConnectionState.Add;
+            Connection = new ConnectionViewModel();
         }
 
-        #region Methods
-
-        private void _connectionPropertyChanged(object sender, PropertyChangedEventArgs e)
+        public DialogAddChangeConnectionViewModel(ConnectionViewModel connection)
         {
-            if ((_connection.Name == "") || (_connection.Host == ""))
-                CanAccept = false;
-            else
-                CanAccept = true;
+            Connection = connection;
         }
-
-        #endregion
 
         #region Properties
 
         private ConnectionViewModel _connection;        
         private DialogAddChangeConnectionState _state;
-        private bool _canAccept;
+        private bool _nameIsInvalid;
+        private bool _hostIsInvalid;
 
         public ConnectionViewModel Connection
         {
@@ -35,38 +29,84 @@ namespace Pinger.ViewModels
             {
                 if (value != _connection)
                 {
-                    _connection = value;                    
-                    _connection.PropertyChanged += _connectionPropertyChanged;
-                    OnPropertyChanged();
-                }
-            }
-        }        
-
-        public DialogAddChangeConnectionState State
-        {
-            get { return _state; }
-            set
-            {
-                if (value != _state)
-                {
-                    _state = value;
-                    if (_state == DialogAddChangeConnectionState.Add)
-                        CanAccept = false;
+                    _connection = value;
+                    if (value.Connection.IsNew())
+                        State = DialogAddChangeConnectionState.Add;
                     else
-                        CanAccept = true;
+                        State = DialogAddChangeConnectionState.Change;
                     OnPropertyChanged();
                 }
             }
         }
 
-        public bool CanAccept
+        public string Name
         {
-            get { return _canAccept; }
+            get { return Connection.Name; }
             set
             {
-                if (value != _canAccept)
+                if(value!=Connection.Name)
                 {
-                    _canAccept = value;
+                    Connection.Name = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public string Host
+        {
+            get { return Connection.Host; }
+            set
+            {
+                if (value != Connection.Host)
+                {
+                    Connection.Host = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public DialogAddChangeConnectionState State
+        {
+            get { return _state; }
+            private set
+            {
+                if (value != _state)
+                {
+                    _state = value;                    
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool NameIsInvalid
+        {
+            get { return _nameIsInvalid; }
+            set
+            {
+                if (value != _nameIsInvalid)
+                {
+                    _nameIsInvalid = value;
+                    if (value || HostIsInvalid)
+                        Accept.CanExecute = false;
+                    else
+                        Accept.CanExecute = true;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool HostIsInvalid
+        {
+            get { return _hostIsInvalid; }
+            set
+            {
+                if (value != _hostIsInvalid)
+                {
+                    _hostIsInvalid = value;
+                    if (value || NameIsInvalid)
+                        Accept.CanExecute = false;
+                    else
+                        Accept.CanExecute = true;
                     OnPropertyChanged();
                 }
             }
@@ -78,8 +118,7 @@ namespace Pinger.ViewModels
 
         public event EventHandler<RequestCloseDialogEventArgs> ClosingRequest = delegate { };
         private void OnClosingRequest(bool dialogresult)
-        {
-            _connection.PropertyChanged -= _connectionPropertyChanged;
+        {            
             ClosingRequest(this, new RequestCloseDialogEventArgs(dialogresult));
         }        
         #endregion
@@ -115,6 +154,48 @@ namespace Pinger.ViewModels
         }
 
         #endregion
+
+        string IDataErrorInfo.Error
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        string IDataErrorInfo.this[string columnName]
+        {
+            get
+            {
+                string result = null;
+                switch(columnName)
+                {
+                    case "Name":
+                        if (Name=="")
+                        {
+                            result = Localization.Localization.ConnectionNameIsRequired;
+                            NameIsInvalid = true;
+                        }
+                        else
+                        {
+                            NameIsInvalid = false;
+                        }
+                        break;
+                    case "Host":
+                        if (Uri.CheckHostName(Host) == UriHostNameType.Unknown)
+                        {
+                            result = Localization.Localization.AddressIsInvalid;
+                            HostIsInvalid = true;
+                        }
+                        else
+                        {
+                            HostIsInvalid = false;
+                        }
+                        break;
+                }
+                return result;
+            }
+        }        
     }
 
     enum DialogAddChangeConnectionState

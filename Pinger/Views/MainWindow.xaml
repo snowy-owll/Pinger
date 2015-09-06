@@ -6,7 +6,7 @@
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:viewModel="clr-namespace:Pinger.ViewModels"        
         x:Name="mainWindow"
-        Height="370" Width="500" WindowStartupLocation="CenterScreen" 
+        Height="450" Width="500" WindowStartupLocation="CenterScreen" 
         Title="{Resx MainWindow_Title}">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
@@ -58,8 +58,8 @@
                             </Ellipse.Style>
                         </Ellipse>
                         <Grid Margin="5,0,0,0" VerticalAlignment="Center">
-                            <Button Command="{Binding ExecutePing}" Content="{Resx Button_StartPing}" VerticalAlignment="Center" Width="105" Height="20"/>
-                            <Button Command="{Binding StopPing}" Content="{Resx Button_StopPing}" VerticalAlignment="Center" Width="105" Height="20" Visibility="{Binding PingExecuted, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            <Button Command="{Binding ExecutePing}" Content="{Resx Button_StartPing}" VerticalAlignment="Center" Width="105"/>
+                            <Button Command="{Binding StopPing}" Content="{Resx Button_StopPing}" VerticalAlignment="Center" Width="105" Visibility="{Binding PingExecuted, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                         </Grid>
                     </StackPanel>
                     <TabControl x:Name="tabControl_ping" HorizontalAlignment="Stretch" Margin="5,5,5,0" SelectedIndex="{Binding CurrentTab}" VerticalAlignment="Stretch">
@@ -76,9 +76,34 @@
                             </Style>
                         </TabControl.Style>
                         <TabItem Header="{Resx ConnectionsTab_InputConnection}">
-                            <Grid Background="#FFE5E5E5">
-                                <ComboBox x:Name="comboBox_oldConnections" ItemsSource="{Binding OldConnections}" SelectedIndex="{Binding CurrentOldConnectionIndex}" SelectedValuePath="Host" SelectedItem="{Binding CurrentOldConnection}" Text="{Binding CurrentOldConnectionText}" DisplayMemberPath="Host" HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Top" IsEditable="True"/>
-                            </Grid>
+                            <AdornerDecorator>
+                                <Grid Background="#FFE5E5E5">
+                                    <ComboBox x:Name="comboBox_oldConnections" ItemsSource="{Binding OldConnections}" SelectedIndex="{Binding CurrentOldConnectionIndex}" SelectedValuePath="Host" 
+                                          SelectedItem="{Binding CurrentOldConnection}" Text="{Binding CurrentOldConnectionText, ValidatesOnDataErrors=True}" DisplayMemberPath="Host" 
+                                          HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Top" IsEditable="True" >
+                                        <ComboBox.Style>
+                                            <Style TargetType="ComboBox">
+                                                <Setter Property="Validation.ErrorTemplate">
+                                                    <Setter.Value>
+                                                        <ControlTemplate>
+                                                            <Grid>
+                                                                <AdornedElementPlaceholder>
+                                                                    <Border BorderBrush="Red" BorderThickness="2"/>
+                                                                </AdornedElementPlaceholder>
+                                                            </Grid>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Style.Triggers>
+                                                    <Trigger Property="Validation.HasError" Value="True">
+                                                        <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors).CurrentItem.ErrorContent}"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ComboBox.Style>
+                                    </ComboBox>
+                                </Grid>
+                            </AdornerDecorator>
                         </TabItem>
                         <TabItem Header="{Resx ConnectionsTab_ConnectionsList}">
                             <Grid Background="#FFE5E5E5">
@@ -101,8 +126,8 @@
                                         <ColumnDefinition Width="1*"/>
                                     </Grid.ColumnDefinitions>
                                     <Button Content="{Resx Button_AddConnection}" Margin="5" Command="{Binding AddConnection}" HorizontalAlignment="Stretch" Padding="6,1"/>
-                                    <Button Content="{Resx Button_ChangeConnection}" Margin="0,5,5,5" Command="{Binding ChangeConnection}" IsEnabled="{Binding CanChangeRemoveConnection}" HorizontalAlignment="Stretch" Grid.Column="1" Padding="6,1"/>
-                                    <Button Content="{Resx Button_RemoveConnection}" Margin="0,5,5,5" Command="{Binding RemoveConnection}" IsEnabled="{Binding CanChangeRemoveConnection}" HorizontalAlignment="Stretch" Grid.Column="2" Padding="6,1"/>
+                                    <Button Content="{Resx Button_ChangeConnection}" Margin="0,5,5,5" Command="{Binding ChangeConnection}" HorizontalAlignment="Stretch" Grid.Column="1" Padding="6,1"/>
+                                    <Button Content="{Resx Button_RemoveConnection}" Margin="0,5,5,5" Command="{Binding RemoveConnection}" HorizontalAlignment="Stretch" Grid.Column="2" Padding="6,1"/>
                                 </Grid>
                             </Grid>
                         </TabItem>
@@ -167,8 +192,8 @@
         </Label>
         <StackPanel HorizontalAlignment="Right" Margin="5,0,5,5" Grid.Row="1" VerticalAlignment="Top" Orientation="Horizontal">
             <!--<Label Content="{Binding Text, ElementName=comboBox_oldConnections}"/>
-            <Label Content="{Binding SelectedIndex ,ElementName=comboBox_oldConnections}"/>
-            <Label Content="{Binding SelectedItem ,ElementName=comboBox_oldConnections}"/>-->
+            <Label Content="{Binding CurrentOldConnectionIsInvalid}"/>
+            <Label Content="{Binding Path=(views:Attached.HasError) ,ElementName=comboBox_oldConnections}"/>-->
             <Button Content="{Resx Button_Test}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Command="{Binding Test}" Visibility="Collapsed"/>
             <Button Content="{Resx Button_Exit}" Command="{Binding WindowClose}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="5,0,0,0"/>
         </StackPanel>

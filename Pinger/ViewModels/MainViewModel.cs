@@ -1,5 +1,4 @@
-﻿using Infralution.Localization.Wpf;
-using Pinger.Services;
+﻿using Pinger.Services;
 using System;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -10,10 +9,11 @@ using System.Diagnostics;
 using Pinger.Models;
 using System.Linq;
 using Pinger.DB;
+using System.ComponentModel;
 
 namespace Pinger.ViewModels
 {
-    class MainViewModel : ObservableObject
+    class MainViewModel : ObservableObject, IDataErrorInfo
     {
         public MainViewModel()
         {
@@ -38,6 +38,7 @@ namespace Pinger.ViewModels
             };                                    
             _soundPing = _settings.SoundPing;
             _pingExecuted = false;
+            _currentOldConnectionIsInvalid = false;
             CurrentPingState = PingState.PingStopped;
 
             _supportedCultures = new ObservableCollection<CultureItem>();
@@ -63,9 +64,7 @@ namespace Pinger.ViewModels
         private Settings _settings = new Settings();
         private ObservableCollection<int> _listReplies = new ObservableCollection<int>();
         private PingThread _pingThread = null;
-        private Dispatcher _dispatcher = Dispatcher.CurrentDispatcher;
-        private DialogAddChangeConnectionService _dialogAddChangeConnectionService = new DialogAddChangeConnectionService();
-        private DialogAddChangeConnectionViewModel _dialogAddChangeConnectionModel = new DialogAddChangeConnectionViewModel();
+        private Dispatcher _dispatcher = Dispatcher.CurrentDispatcher;        
 
         #region Methods
 
@@ -128,6 +127,7 @@ namespace Pinger.ViewModels
         private int _currentOldConnectionIndex;
         private ConnectionViewModel _currentConnection;
         private string _currentOldConnectionText;
+        private bool _currentOldConnectionIsInvalid;
         private ConnectionViewModel _currentOldConnection;
         private PingState _pingState = PingState.PingStopped;
         private OldConnectionsViewModel _oldConnections;
@@ -136,7 +136,7 @@ namespace Pinger.ViewModels
         private SoundPing _soundPing;
         private bool _pingExecuted;        
         private ObservableCollection<CultureItem> _supportedCultures;
-        private CultureItem _currentCulture;
+        private CultureItem _currentCulture;        
 
         public int CurrentTab
         {
@@ -148,7 +148,7 @@ namespace Pinger.ViewModels
                     _currentTab = value;
                     if (_currentTab == 0)
                     {
-                        if (CurrentOldConnectionText == "")
+                        if (CurrentOldConnectionIsInvalid)
                             ExecutePing.CanExecute = false;
                         else
                             ExecutePing.CanExecute = true;
@@ -202,10 +202,23 @@ namespace Pinger.ViewModels
             {
                 if (value != _currentOldConnectionText)
                 {
-                    _currentOldConnectionText = value;
-                    if (_currentOldConnectionText == "" && CurrentTab==0)
+                    _currentOldConnectionText = value;                    
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool CurrentOldConnectionIsInvalid
+        {
+            get { return _currentOldConnectionIsInvalid; }
+            set
+            {
+                if (value != _currentOldConnectionIsInvalid)
+                {
+                    _currentOldConnectionIsInvalid = value;
+                    if (_currentOldConnectionIsInvalid && CurrentTab == 0)
                         ExecutePing.CanExecute = false;
-                    else if (_currentOldConnectionText != "" && CurrentTab == 0)
+                    else if (!_currentOldConnectionIsInvalid && CurrentTab == 0)
                         ExecutePing.CanExecute = true;
                     OnPropertyChanged();
                 }
@@ -378,7 +391,7 @@ namespace Pinger.ViewModels
         private Command _addConnection = null;
         private Command _changeConnection = null;
         private Command _removeConnection = null;
-        private Command _test = null;
+        private Command _test = null;        
 
         public Command StopPing
         {
@@ -467,13 +480,12 @@ namespace Pinger.ViewModels
                 if (_addConnection == null)
                     _addConnection = new Command(() =>
                     {
-                        _dialogAddChangeConnectionModel.State = DialogAddChangeConnectionState.Add;
-                        _dialogAddChangeConnectionModel.Connection = new ConnectionViewModel();
-                        bool? result = _dialogAddChangeConnectionService.ShowDialog(_dialogAddChangeConnectionModel);
+                        DialogAddChangeConnectionViewModel dialogModel = new DialogAddChangeConnectionViewModel();
+                        bool? result = new DialogAddChangeConnectionService().ShowDialog(dialogModel);
                         if (result.HasValue && result.Value)
                         {
-                            _connections.Add(_dialogAddChangeConnectionModel.Connection);                            
-                            CurrentConnection = _dialogAddChangeConnectionModel.Connection;
+                            _connections.Add(dialogModel.Connection);                            
+                            CurrentConnection = dialogModel.Connection;
                             ChangeConnection.CanExecute = true;
                             RemoveConnection.CanExecute = true;
                         }
@@ -488,15 +500,14 @@ namespace Pinger.ViewModels
             {
                 if (_changeConnection == null)
                     _changeConnection = new Command(() =>
-                    {
-                        _dialogAddChangeConnectionModel.State = DialogAddChangeConnectionState.Change;                        
-                        _dialogAddChangeConnectionModel.Connection = new ConnectionViewModel(CurrentConnection.Name, CurrentConnection.Host);;
-                        bool? result = _dialogAddChangeConnectionService.ShowDialog(_dialogAddChangeConnectionModel);
+                    {                                                
+                        DialogAddChangeConnectionViewModel dialogModel = new DialogAddChangeConnectionViewModel(new ConnectionViewModel(CurrentConnection.Name, CurrentConnection.Host));
+                        bool? result = new DialogAddChangeConnectionService().ShowDialog(dialogModel);
                         if (result.HasValue && result.Value)
                         {
                             ConnectionViewModel connection = CurrentConnection;
-                            connection.Name = _dialogAddChangeConnectionModel.Connection.Name;
-                            connection.Host = _dialogAddChangeConnectionModel.Connection.Host;                            
+                            connection.Name = dialogModel.Connection.Name;
+                            connection.Host = dialogModel.Connection.Host;                            
                             CurrentConnection = connection;
 
                         }
@@ -529,7 +540,7 @@ namespace Pinger.ViewModels
                     });
                 return _removeConnection;
             }
-        }
+        }        
 
         public Command Test
         {
@@ -553,6 +564,39 @@ namespace Pinger.ViewModels
         private void OnClosingRequest()
         {
             ClosingRequest(this, EventArgs.Empty);
+        }
+
+        #endregion
+
+        #region IDataErrorInfo Members
+
+        string IDataErrorInfo.Error
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        string IDataErrorInfo.this[string columnName]
+        {
+            get
+            {
+                string result = null;
+                if(columnName== "CurrentOldConnectionText")
+                {
+                    if(Uri.CheckHostName(CurrentOldConnectionText)==UriHostNameType.Unknown)
+                    {
+                        result = Localization.Localization.AddressIsInvalid;
+                        CurrentOldConnectionIsInvalid = true;
+                    }
+                    else
+                    {
+                        CurrentOldConnectionIsInvalid = false;
+                    }
+                }
+                return result;
+            }
         }
 
         #endregion

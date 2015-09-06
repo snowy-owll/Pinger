@@ -10,6 +10,24 @@
     <Window.Resources>
         <Resx x:Key="WindowTitle_Add" ResxName="Pinger.Localization.Localization" Key="DialogAddChangeConnection_Add"/>
         <Resx x:Key="WindowTitle_Change" ResxName="Pinger.Localization.Localization" Key="DialogAddChangeConnection_Change"/>
+        <Style x:Key="TextBox_ErrorStyle" TargetType="TextBox">
+            <Setter Property="Validation.ErrorTemplate">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Grid>
+                            <AdornedElementPlaceholder>
+                                <Border BorderBrush="Red" BorderThickness="2"/>
+                            </AdornedElementPlaceholder>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="True">
+                    <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors).CurrentItem.ErrorContent}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
     <Window.Style>
         <Style TargetType="Window">
@@ -39,11 +57,13 @@
             </Grid.ColumnDefinitions>
             <Label Content="{Resx DialogAddChangeConnection_Name}"/>
             <Label Content="{Resx DialogAddChangeConnection_Host}" Grid.Row="1"/>
-            <TextBox x:Name="textBox_Name" Grid.Column="1" VerticalAlignment="Center" Margin="5" Text="{Binding Connection.Name, UpdateSourceTrigger=PropertyChanged}"/>
-            <TextBox Grid.Column="1" Grid.Row="1" VerticalAlignment="Center" Margin="5" Text="{Binding Connection.Host, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBox x:Name="textBox_Name" Grid.Column="1" VerticalAlignment="Center" Margin="5" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                     Style="{StaticResource TextBox_ErrorStyle}"/>
+            <TextBox Grid.Column="1" Grid.Row="1" VerticalAlignment="Center" Margin="5" Text="{Binding Host, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                     Style="{StaticResource TextBox_ErrorStyle}"/>
         </Grid>
         <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right">
-            <Button Content="{Resx Button_Ok}" Margin="5" Padding="3" Width="70" IsEnabled="{Binding CanAccept}" Command="{Binding Accept}"/>
+            <Button Content="{Resx Button_Ok}" Margin="5" Padding="3" Width="70" Command="{Binding Accept}"/>
             <Button Content="{Resx Button_Cancel}" Margin="5" Padding="3" Width="70" Command="{Binding Reject}"/>
         </StackPanel>
     </Grid>
