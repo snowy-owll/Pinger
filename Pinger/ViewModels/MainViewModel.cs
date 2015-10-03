@@ -1,12 +1,9 @@
 ﻿using Pinger.Services;
 using System;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.Net.NetworkInformation;
-using System.Resources;
 using System.Windows.Threading;
 using System.Diagnostics;
-using Pinger.Models;
 using System.Linq;
 using Pinger.DB;
 using System.ComponentModel;
@@ -19,6 +16,7 @@ namespace Pinger.ViewModels
         {
             _oldConnections = new OldConnectionsViewModel(_settings);
             _connections = new ConnectionsViewModel(_settings);
+            _settingsViewModel = new SettingsViewModel(_settings);
             _listReplies.CollectionChanged += (s, e) =>
             {
                 string replies = "";
@@ -35,30 +33,10 @@ namespace Pinger.ViewModels
                     }
                 }
                 Replies = replies;
-            };                                    
-            _soundPing = _settings.SoundPing;
+            };                                                
             _pingExecuted = false;
             _currentOldConnectionIsInvalid = false;
-            CurrentPingState = PingState.PingStopped;
-
-            _supportedCultures = new ObservableCollection<CultureItem>();
-            SupportedCultures.Add(new CultureItem(CultureInfo.InstalledUICulture, true));
-            ResourceManager rm = new ResourceManager(typeof(Localization.Localization));            
-            CultureInfo[] cultures = CultureInfo.GetCultures(CultureTypes.AllCultures);
-            foreach (CultureInfo culture in cultures)
-            {
-                try
-                {
-                    ResourceSet rs = rm.GetResourceSet(culture, true, false);                    
-                    if (rs == null || culture.Equals(CultureInfo.InvariantCulture)) continue;
-                    SupportedCultures.Add(new CultureItem(culture));
-                }
-                catch (CultureNotFoundException)
-                {
-                    Debug.WriteLine(culture + " is not available on the machine or is an invalid culture identifier.");
-                }
-            }
-            CurrentCulture = SupportedCultures.Where(c => c.CultureInfo.Equals(_settings.Language.CultureInfo)).First();            
+            CurrentPingState = PingState.PingStopped;                                   
         }
 
         private Settings _settings = new Settings();
@@ -132,11 +110,9 @@ namespace Pinger.ViewModels
         private PingState _pingState = PingState.PingStopped;
         private OldConnectionsViewModel _oldConnections;
         private ConnectionsViewModel _connections;
-        private string _replies;
-        private SoundPing _soundPing;
-        private bool _pingExecuted;        
-        private ObservableCollection<CultureItem> _supportedCultures;
-        private CultureItem _currentCulture;        
+        private SettingsViewModel _settingsViewModel;
+        private string _replies;        
+        private bool _pingExecuted;                             
 
         public int CurrentTab
         {
@@ -288,21 +264,7 @@ namespace Pinger.ViewModels
                     OnPropertyChanged();
                 }
             }
-        }
-
-        public SoundPing SoundPing
-        {
-            get { return _soundPing; }
-            set
-            {
-                if (value != _soundPing)
-                {
-                    _soundPing = value;
-                    _settings.SoundPing = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        }        
 
         public bool PingExecuted
         {
@@ -350,30 +312,16 @@ namespace Pinger.ViewModels
                     OnPropertyChanged();
                 }
             }
-        }        
+        }                
 
-        public ObservableCollection<CultureItem> SupportedCultures
+        public SettingsViewModel Settings
         {
-            get { return _supportedCultures; }
+            get { return _settingsViewModel; }
             set
             {
-                if (value != _supportedCultures)
+                if(value != _settingsViewModel)
                 {
-                    _supportedCultures = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public CultureItem CurrentCulture
-        {
-            get { return _currentCulture; }
-            set
-            {
-                if (value != _currentCulture)
-                {
-                    _currentCulture = value;
-                    _settings.Language = value;
+                    _settingsViewModel = value;
                     OnPropertyChanged();
                 }
             }

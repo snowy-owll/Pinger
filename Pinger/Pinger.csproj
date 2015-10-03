@@ -97,6 +97,7 @@
     <Compile Include="ViewModels\DialogAddChangeConnectionViewModel.cs" />
     <Compile Include="ViewModels\ErrorDialogViewModel.cs" />
     <Compile Include="ViewModels\OldConnectionsViewModel.cs" />
+    <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="Views\Attached.cs" />
     <Compile Include="Views\DialogAddChangeConnection.xaml.cs">
       <DependentUpon>DialogAddChangeConnection.xaml</DependentUpon>

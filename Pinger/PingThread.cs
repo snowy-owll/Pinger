@@ -68,6 +68,10 @@ namespace Pinger
                     StopPing();
                     OnPingStopped(ReasonStopPing.ExceptionStop);
                     return;
+                }    
+                catch(InvalidOperationException)
+                {
+                    _pingSender.SendAsyncCancel();
                 }
                 Thread.Sleep(1000);
             }

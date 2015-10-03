@@ -135,7 +135,7 @@
                 </Grid>
             </TabItem>
             <TabItem Header="{Resx MainTab_Settings}">
-                <Grid Background="#FFE5E5E5">
+                <Grid Background="#FFE5E5E5" DataContext="{Binding Settings}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>

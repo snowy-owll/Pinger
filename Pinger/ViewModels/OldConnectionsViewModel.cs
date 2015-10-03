@@ -7,14 +7,11 @@ namespace Pinger.ViewModels
 {
     class OldConnectionsViewModel: OldConnectionsCollection
     {
-        const int MAX_OLD_CONNECTIONS = 15;
+        const int MAX_OLD_CONNECTIONS = 10;
 
         public OldConnectionsViewModel(Settings settings) : base(settings.GetOldConnections().ConvertAll(x=>new ConnectionViewModel(x)))
         {
-            _settings = settings;
-            /*List<Connection> list = _settings.GetOldConnections();          
-            foreach (Connection connection in list)
-                Add(new ConnectionViewModel(connection));*/
+            _settings = settings;            
             CollectionChanged += (s, e) =>
                 {
                     if (e.Action == NotifyCollectionChangedAction.Add)
