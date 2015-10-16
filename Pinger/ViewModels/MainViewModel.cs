@@ -10,7 +10,7 @@ using System.ComponentModel;
 
 namespace Pinger.ViewModels
 {
-    class MainViewModel : ObservableObject, IDataErrorInfo
+    class MainViewModel : ObservableObject
     {
         public MainViewModel()
         {
@@ -36,7 +36,21 @@ namespace Pinger.ViewModels
             };                                                
             _pingExecuted = false;
             _currentOldConnectionIsInvalid = false;
-            CurrentPingState = PingState.PingStopped;                                   
+            CurrentPingState = PingState.PingStopped;
+            AddValidationRule(new ValidationRule("CurrentOldConnectionText", () => 
+            {
+                string result = null;
+                if (Uri.CheckHostName(CurrentOldConnectionText) == UriHostNameType.Unknown)
+                {
+                    result = Localization.Localization.AddressIsInvalid;
+                    CurrentOldConnectionIsInvalid = true;
+                }
+                else
+                {
+                    CurrentOldConnectionIsInvalid = false;
+                }
+                return result;
+            }));
         }
 
         private Settings _settings = new Settings();
@@ -514,40 +528,7 @@ namespace Pinger.ViewModels
             ClosingRequest(this, EventArgs.Empty);
         }
 
-        #endregion
-
-        #region IDataErrorInfo Members
-
-        string IDataErrorInfo.Error
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        string IDataErrorInfo.this[string columnName]
-        {
-            get
-            {
-                string result = null;
-                if(columnName== "CurrentOldConnectionText")
-                {
-                    if(Uri.CheckHostName(CurrentOldConnectionText)==UriHostNameType.Unknown)
-                    {
-                        result = Localization.Localization.AddressIsInvalid;
-                        CurrentOldConnectionIsInvalid = true;
-                    }
-                    else
-                    {
-                        CurrentOldConnectionIsInvalid = false;
-                    }
-                }
-                return result;
-            }
-        }
-
-        #endregion
+        #endregion        
     }
 
     enum PingState

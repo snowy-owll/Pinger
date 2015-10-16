@@ -74,6 +74,7 @@
     <Compile Include="DB\ConnectionsRepository.cs" />
     <Compile Include="DB\OldConnectionsRepository.cs" />
     <Compile Include="DB\SettingsRepository.cs" />
+    <Compile Include="ValidationRule.cs" />
     <Compile Include="Interfaces\IDbEntity.cs" />
     <Compile Include="DB\RepositoryBase.cs" />
     <Compile Include="EnumBooleanConverter.cs" />

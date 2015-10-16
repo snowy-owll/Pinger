@@ -3,16 +3,41 @@ using System.ComponentModel;
 
 namespace Pinger.ViewModels
 {
-    class DialogAddChangeConnectionViewModel : ObservableObject, IDataErrorInfo
+    class DialogAddChangeConnectionViewModel : ObservableObject
     {
-        public DialogAddChangeConnectionViewModel()
-        {
-            Connection = new ConnectionViewModel();
-        }
+        public DialogAddChangeConnectionViewModel() : this(new ConnectionViewModel()) { }
 
         public DialogAddChangeConnectionViewModel(ConnectionViewModel connection)
         {
             Connection = connection;
+            AddValidationRule(new ValidationRule("Name", () =>
+             {
+                 string result = null;
+                 if (Name == "")
+                 {
+                     result = Localization.Localization.ConnectionNameIsRequired;
+                     NameIsInvalid = true;
+                 }
+                 else
+                 {
+                     NameIsInvalid = false;
+                 }                 
+                 return result;
+             }));
+            AddValidationRule(new ValidationRule("Host", () =>
+             {
+                 string result = null;
+                 if (Uri.CheckHostName(Host) == UriHostNameType.Unknown)
+                 {
+                     result = Localization.Localization.AddressIsInvalid;
+                     HostIsInvalid = true;
+                 }
+                 else
+                 {
+                     HostIsInvalid = false;
+                 }
+                 return result;
+             }));
         }
 
         #region Properties
@@ -153,49 +178,7 @@ namespace Pinger.ViewModels
             }
         }
 
-        #endregion
-
-        string IDataErrorInfo.Error
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        string IDataErrorInfo.this[string columnName]
-        {
-            get
-            {
-                string result = null;
-                switch(columnName)
-                {
-                    case "Name":
-                        if (Name=="")
-                        {
-                            result = Localization.Localization.ConnectionNameIsRequired;
-                            NameIsInvalid = true;
-                        }
-                        else
-                        {
-                            NameIsInvalid = false;
-                        }
-                        break;
-                    case "Host":
-                        if (Uri.CheckHostName(Host) == UriHostNameType.Unknown)
-                        {
-                            result = Localization.Localization.AddressIsInvalid;
-                            HostIsInvalid = true;
-                        }
-                        else
-                        {
-                            HostIsInvalid = false;
-                        }
-                        break;
-                }
-                return result;
-            }
-        }        
+        #endregion                
     }
 
     enum DialogAddChangeConnectionState
