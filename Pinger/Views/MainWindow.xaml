@@ -81,6 +81,9 @@
                                     <ComboBox x:Name="comboBox_oldConnections" ItemsSource="{Binding OldConnections}" SelectedIndex="{Binding CurrentOldConnectionIndex}" SelectedValuePath="Host" 
                                           SelectedItem="{Binding CurrentOldConnection}" Text="{Binding CurrentOldConnectionText, ValidatesOnDataErrors=True}" DisplayMemberPath="Host" 
                                           HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Top" IsEditable="True" >
+                                        <ComboBox.InputBindings>
+                                            <KeyBinding Key="Enter" Command="{Binding ExecutePing}"/>
+                                        </ComboBox.InputBindings>
                                         <ComboBox.Style>
                                             <Style TargetType="ComboBox">
                                                 <Setter Property="Validation.ErrorTemplate">
